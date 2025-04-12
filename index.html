@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Criação de Sprites para Games Indie</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Reset e estilos globais */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #111;
+            color: #f8f8f2;
+            font-family: 'Courier New', monospace;
+            image-rendering: pixelated;
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        h1, label {
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        /* Container principal */
+        .container-main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            padding: 2rem;
+            flex: 1;
+        }
+
+        /* Container para o conteúdo do prompt e formulário */
+        .form-container, .prompt-container {
+            width: 70%;
+            padding: 2rem;
+            border: 4px solid #0ff;
+            border-radius: 0;
+            box-shadow: inset 0 0 10px #0ff;
+            margin-bottom: 2rem; /* Espaço entre o form e o prompt */
+        }
+
+        /* Estilo para a área do prompt gerado */
+        #promptOutput {
+            display: none;
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: #222;
+            border: 2px solid #0ff;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .form-control, .btn-pixel {
+            background-color: #222;
+            color: #0ff;
+            border: 1px solid #555;
+        }
+
+        .form-control:focus, .btn-pixel:focus {
+            outline: none;
+            box-shadow: 0 0 5px #0ff;
+        }
+
+        .btn-pixel {
+            background-color: #0ff;
+            color: #000;
+            font-weight: bold;
+            border: 2px solid #000;
+            box-shadow: 2px 2px #000;
+            cursor: pointer;
+        }
+
+        .btn-pixel:hover {
+            background-color: #00bfbf;
+        }
+
+        /* Anúncios laterais */
+        .ad-space {
+            width: 15%;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            z-index: 100;
+            background-color: #333;
+        }
+
+        .ad-space-left {
+            left: 0;
+        }
+
+        .ad-space-right {
+            right: 0;
+        }
+
+        .ad-space iframe {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .container-main {
+                width: 100%;
+                padding: 1rem;
+            }
+
+            .form-container, .prompt-container {
+                width: 100%;
+                padding: 1rem;
+            }
+
+            .ad-space {
+                width: 100%;
+                height: 250px;
+                position: relative;
+                margin-top: 1rem;
+            }
+
+            .ad-space-left, .ad-space-right {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            #promptOutput {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Anúncio superior -->
+<div class="ad-space ad-space-left">
+    <iframe src="https://via.placeholder.com/250x600" frameborder="0"></iframe>
+</div>
+
+<!-- Conteúdo principal (formulário e prompt) -->
+<div class="container-main">
+    <h1 class="text-center mb-4">🎮 Gerador de Sprites Pixel Art</h1>
+
+    <div class="form-container">
+        <form id="spriteForm">
+            <div class="mb-3">
+                <label for="personagem" class="form-label">Descrição do Personagem</label>
+                <input type="text" class="form-control" id="personagem" placeholder="Ex: guerreiro medieval com armadura de ouro">
+            </div>
+
+            <div class="mb-3">
+                <label for="acao" class="form-label">Ação Animada</label>
+                <div id="acao">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Andando" id="andando">
+                        <label class="form-check-label" for="andando">Andando</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Correndo" id="correndo">
+                        <label class="form-check-label" for="correndo">Correndo</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Pulando" id="pulando">
+                        <label class="form-check-label" for="pulando">Pulando</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Atacando" id="atacando">
+                        <label class="form-check-label" for="atacando">Atacando</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Tomando dano" id="tomandoDano">
+                        <label class="form-check-label" for="tomandoDano">Tomando dano</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="ambiente" class="form-label">Ambiente</label>
+                <input type="text" class="form-control" id="ambiente" placeholder="Ex: floresta, deserto, cidade futurista">
+            </div>
+
+            <div class="mb-3">
+                <label for="detalhes" class="form-label">Detalhes Extras</label>
+                <textarea class="form-control" id="detalhes" rows="3" placeholder="Ex: reflexo na espada, fundo brilhante..."></textarea>
+            </div>
+
+            <div class="btn-container">
+                <button type="button" class="btn btn-pixel w-100" onclick="gerarPrompt()" disabled>✨ Gerar Sprite</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Container para exibir o prompt gerado -->
+    <div class="prompt-container">
+        <div id="promptOutput">
+            <h4 class="text-center">Prompt Gerado</h4>
+            <pre id="generatedPrompt"></pre>
+            <!-- Botão para copiar o prompt -->
+            <button class="btn btn-pixel w-100 mt-3" onclick="copiarPrompt()">📋 Copiar Prompt</button>
+        </div>
+    </div>
+</div>
+
+<!-- Anúncio inferior -->
+<div class="ad-space ad-space-right">
+    <iframe src="https://via.placeholder.com/250x600" frameborder="0"></iframe>
+</div>
+
+<script>
+    const personagemInput = document.getElementById("personagem");
+    const acaoInputs = document.querySelectorAll("#acao .form-check-input");
+    const ambienteInput = document.getElementById("ambiente");
+    const detalhesInput = document.getElementById("detalhes");
+    const botaoGerarSprite = document.querySelector("button");
+    const promptOutput = document.getElementById("promptOutput");
+    const generatedPrompt = document.getElementById("generatedPrompt");
+
+    // Função para verificar se todos os campos estão preenchidos
+    function verificarCampos() {
+        if (
+            personagemInput.value.trim() !== "" &&
+            Array.from(acaoInputs).some(input => input.checked) && // Pelo menos uma ação deve ser selecionada
+            ambienteInput.value.trim() !== "" &&
+            detalhesInput.value.trim() !== ""
+        ) {
+            botaoGerarSprite.disabled = false;
+        } else {
+            botaoGerarSprite.disabled = true;
+        }
+    }
+
+    // Verificar sempre que um campo mudar
+    personagemInput.addEventListener("input", verificarCampos);
+    acaoInputs.forEach(input => input.addEventListener("change", verificarCampos));
+    ambienteInput.addEventListener("input", verificarCampos);
+    detalhesInput.addEventListener("input", verificarCampos);
+
+    function gerarPrompt() {
+        const personagem = personagemInput.value.trim();
+        const acaoSelecionada = Array.from(acaoInputs)
+            .filter(input => input.checked)
+            .map(input => input.value); // Pega todas as opções selecionadas
+        const ambiente = ambienteInput.value.trim();
+        const detalhes = detalhesInput.value.trim();
+
+        // Gerando o prompt com múltiplas ações
+        const prompt = `
+Crie animações em pixel art detalhadas, quadro a quadro, para um game, onde a imagem final será dividida em várias subimagens - cada uma funcionando como um frame contínuo da animação. 
+Estruture a sequência para mostrar:
+Personagem: ${personagem} 
+Ações animadas: ${acaoSelecionada.join(", ")}  // Ações separadas por vírgula
+Ambiente: ${ambiente} 
+Detalhes extras: ${detalhes}
+
+Certifique-se de que os frames tenham uma transição suave e contínua, e inclua o maior número possível de quadros para deixar a animação fluida e rica em detalhes.
+        `.trim();
+
+        // Exibir o prompt gerado na tela
+        generatedPrompt.textContent = prompt;
+        promptOutput.style.display = 'block'; // Exibir a seção do prompt gerado
+    }
+
+    function copiarPrompt() {
+        // Seleciona o conteúdo do prompt gerado
+        const range = document.createRange();
+        range.selectNode(generatedPrompt);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+
+        // Copia para a área de transferência
+        document.execCommand('copy');
+
+        
+    }
+</script>
+
+</body>
+</html>
